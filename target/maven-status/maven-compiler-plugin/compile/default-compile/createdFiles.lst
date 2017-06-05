@@ -1,4 +1,13 @@
 com\example\demo\GreetingController.class
-com\example\demo\UserController.class
 com\example\demo\DemoApplication.class
 com\example\demo\Greeting.class
+com\example\demo\proto\Data$Builder.class
+com\example\demo\proto\Person$Builder.class
+com\example\demo\UserController.class
+com\example\demo\proto\Person$ProtoAdapter_Person.class
+com\example\demo\proto\Phone$Builder.class
+com\example\demo\proto\Person.class
+com\example\demo\proto\Phone$ProtoAdapter_Phone.class
+com\example\demo\proto\Data.class
+com\example\demo\proto\Data$ProtoAdapter_Data.class
+com\example\demo\proto\Phone.class

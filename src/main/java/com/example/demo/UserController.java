@@ -1,17 +1,22 @@
 package com.example.demo;
 
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import com.example.demo.proto.Data;
+import com.example.demo.proto.Person;
+import com.example.demo.proto.Phone;
+import org.springframework.web.bind.annotation.*;
+import sun.net.www.content.text.Generic;
 
+import java.net.URLDecoder;
 import java.sql.*;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Created by Howard on 05/30/2017.
  */
 @RestController
 public class UserController {
-    public Connection getConnnection() throws ClassNotFoundException, SQLException{
+    public Connection getConnection() throws ClassNotFoundException, SQLException {
         Class.forName("com.mysql.jdbc.Driver");
 
         String url = "jdbc:mysql://47.94.97.91:3306/person";
@@ -24,37 +29,75 @@ public class UserController {
     }
 
     @RequestMapping("/login")
-    public String Login(@RequestParam("username") String username, @RequestParam("password") String password) throws Exception{
-        Connection conn = getConnnection();
+    public String Login(@RequestParam("username") String username, @RequestParam("password") String password) throws Exception {
+        Connection conn = getConnection();
 
-        try {
             Statement sql_statement = conn.createStatement();
 
             String query = "select * from user where username = '" + username + "' and password = '" + password + "'";
             ResultSet result = sql_statement.executeQuery(query);
 
             if (result.next()) {
-                return "登陆通过";
+                return "登录通过";
             } else
                 return "用户名或密码错误";
+    }
 
-        }catch (Exception e) {
-            e.printStackTrace();
-            if (conn != null){
-                //事务回滚
-                conn.rollback();
+    @RequestMapping("signup")
+    public String SignUp(@RequestParam("username") String username, @RequestParam("password") String password) throws Exception {
+        Connection conn = getConnection();
+
+            Statement sql_statement = conn.createStatement();
+
+            String query = "select * from user where username = '" + username + "'";
+            ResultSet result = sql_statement.executeQuery(query);
+
+            if (result.next()) {
+                return "用户名重复";
+            } else{
+                query = "Insert into user(username, password) VALUES ('" + username + "','" + password + "')";
+                sql_statement.execute(query);
+                return "注册成功";
             }
-        } finally {
-            if (conn != null) {
-                // 关闭连接
-                try {
-                    conn.close();
-                    System.out.println("Database connection terminated");
-                } catch (Exception e) { /* ignore close errors */
-                }
-            }
+    }
+
+    @RequestMapping(value = "updateDatabase")
+    public String updateDatabase(@RequestParam("key") String url) throws Exception{
+        Data data = Data.ADAPTER.decode(url.replace("%25","%").getBytes());
+
+        Connection conn = getConnection();
+        Statement sql_statement = conn.createStatement();
+
+        int userIndex=0;
+
+        String query = "select id from user where username = '" + data.user + "'";
+        ResultSet result = sql_statement.executeQuery(query);
+        if (result.next()) {
+            userIndex = result.getInt(1);
         }
 
-        return "0";
+        for (Person temp:data.persons) {
+            query = "Insert into nameInfo(userId,id, name, photoSmall, photoLarge, isStarred) VALUES ("
+                    + userIndex + ","
+                    + temp.id + ",'"
+                    + temp.name + "','"
+                    + temp.photoSmall + "','"
+                    + temp.photoLarge + "',"
+                    + temp.isStarred + ")";
+            System.out.println(query);
+            sql_statement.execute(query);
+        }
+
+        for (Phone temp:data.phoned){
+            query = "Insert into phoneInfo(userId,id, nameId,phoneNumber,phoneType) VALUES ("
+                    + userIndex + ","
+                    + temp.id + ","
+                    + temp.nameId + ",'"
+                    + temp.number + "',"
+                    + temp.type + ")";
+            System.out.println(query);
+            sql_statement.execute(query);
+        }
+        return "注册成功";
     }
 }

@@ -1,0 +1,26 @@
+syntax = "proto2";
+
+package com.howard.designcontact;
+
+option java_package = "com.example.demo.proto";
+
+message Person {
+  required int32 id = 1;
+  required string name = 2;
+  required string photoSmall = 3;
+  required string photoLarge = 4;
+  required int32 isStarred = 5;
+}
+
+message Phone {
+	required int32 id = 1;
+	required int32 nameId = 2;
+	required string number = 3;
+	required int32 type = 4;
+}
+
+message Data {
+	required string user = 1;
+	repeated Person persons = 2;
+	repeated Phone phoned =3;
+}
