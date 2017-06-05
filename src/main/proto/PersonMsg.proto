@@ -7,8 +7,8 @@ option java_package = "com.example.demo.proto";
 message Person {
   required int32 id = 1;
   required string name = 2;
-  required string photoSmall = 3;
-  required string photoLarge = 4;
+  optional bytes photoSmall = 3;
+  optional bytes photoLarge = 4;
   required int32 isStarred = 5;
 }
 

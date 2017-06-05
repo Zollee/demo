@@ -26,9 +26,9 @@ public final class Person extends Message<Person, Person.Builder> {
 
   public static final String DEFAULT_NAME = "";
 
-  public static final String DEFAULT_PHOTOSMALL = "";
+  public static final ByteString DEFAULT_PHOTOSMALL = ByteString.EMPTY;
 
-  public static final String DEFAULT_PHOTOLARGE = "";
+  public static final ByteString DEFAULT_PHOTOLARGE = ByteString.EMPTY;
 
   public static final Integer DEFAULT_ISSTARRED = 0;
 
@@ -48,17 +48,15 @@ public final class Person extends Message<Person, Person.Builder> {
 
   @WireField(
       tag = 3,
-      adapter = "com.squareup.wire.ProtoAdapter#STRING",
-      label = WireField.Label.REQUIRED
+      adapter = "com.squareup.wire.ProtoAdapter#BYTES"
   )
-  public final String photoSmall;
+  public final ByteString photoSmall;
 
   @WireField(
       tag = 4,
-      adapter = "com.squareup.wire.ProtoAdapter#STRING",
-      label = WireField.Label.REQUIRED
+      adapter = "com.squareup.wire.ProtoAdapter#BYTES"
   )
-  public final String photoLarge;
+  public final ByteString photoLarge;
 
   @WireField(
       tag = 5,
@@ -67,11 +65,11 @@ public final class Person extends Message<Person, Person.Builder> {
   )
   public final Integer isStarred;
 
-  public Person(Integer id, String name, String photoSmall, String photoLarge, Integer isStarred) {
+  public Person(Integer id, String name, ByteString photoSmall, ByteString photoLarge, Integer isStarred) {
     this(id, name, photoSmall, photoLarge, isStarred, ByteString.EMPTY);
   }
 
-  public Person(Integer id, String name, String photoSmall, String photoLarge, Integer isStarred, ByteString unknownFields) {
+  public Person(Integer id, String name, ByteString photoSmall, ByteString photoLarge, Integer isStarred, ByteString unknownFields) {
     super(ADAPTER, unknownFields);
     this.id = id;
     this.name = name;
@@ -100,8 +98,8 @@ public final class Person extends Message<Person, Person.Builder> {
     return unknownFields().equals(o.unknownFields())
         && id.equals(o.id)
         && name.equals(o.name)
-        && photoSmall.equals(o.photoSmall)
-        && photoLarge.equals(o.photoLarge)
+        && Internal.equals(photoSmall, o.photoSmall)
+        && Internal.equals(photoLarge, o.photoLarge)
         && isStarred.equals(o.isStarred);
   }
 
@@ -112,8 +110,8 @@ public final class Person extends Message<Person, Person.Builder> {
       result = unknownFields().hashCode();
       result = result * 37 + id.hashCode();
       result = result * 37 + name.hashCode();
-      result = result * 37 + photoSmall.hashCode();
-      result = result * 37 + photoLarge.hashCode();
+      result = result * 37 + (photoSmall != null ? photoSmall.hashCode() : 0);
+      result = result * 37 + (photoLarge != null ? photoLarge.hashCode() : 0);
       result = result * 37 + isStarred.hashCode();
       super.hashCode = result;
     }
@@ -125,8 +123,8 @@ public final class Person extends Message<Person, Person.Builder> {
     StringBuilder builder = new StringBuilder();
     builder.append(", id=").append(id);
     builder.append(", name=").append(name);
-    builder.append(", photoSmall=").append(photoSmall);
-    builder.append(", photoLarge=").append(photoLarge);
+    if (photoSmall != null) builder.append(", photoSmall=").append(photoSmall);
+    if (photoLarge != null) builder.append(", photoLarge=").append(photoLarge);
     builder.append(", isStarred=").append(isStarred);
     return builder.replace(0, 2, "Person{").append('}').toString();
   }
@@ -136,9 +134,9 @@ public final class Person extends Message<Person, Person.Builder> {
 
     public String name;
 
-    public String photoSmall;
+    public ByteString photoSmall;
 
-    public String photoLarge;
+    public ByteString photoLarge;
 
     public Integer isStarred;
 
@@ -155,12 +153,12 @@ public final class Person extends Message<Person, Person.Builder> {
       return this;
     }
 
-    public Builder photoSmall(String photoSmall) {
+    public Builder photoSmall(ByteString photoSmall) {
       this.photoSmall = photoSmall;
       return this;
     }
 
-    public Builder photoLarge(String photoLarge) {
+    public Builder photoLarge(ByteString photoLarge) {
       this.photoLarge = photoLarge;
       return this;
     }
@@ -174,13 +172,9 @@ public final class Person extends Message<Person, Person.Builder> {
     public Person build() {
       if (id == null
           || name == null
-          || photoSmall == null
-          || photoLarge == null
           || isStarred == null) {
         throw Internal.missingRequiredFields(id, "id",
             name, "name",
-            photoSmall, "photoSmall",
-            photoLarge, "photoLarge",
             isStarred, "isStarred");
       }
       return new Person(id, name, photoSmall, photoLarge, isStarred, super.buildUnknownFields());
@@ -196,8 +190,8 @@ public final class Person extends Message<Person, Person.Builder> {
     public int encodedSize(Person value) {
       return ProtoAdapter.INT32.encodedSizeWithTag(1, value.id)
           + ProtoAdapter.STRING.encodedSizeWithTag(2, value.name)
-          + ProtoAdapter.STRING.encodedSizeWithTag(3, value.photoSmall)
-          + ProtoAdapter.STRING.encodedSizeWithTag(4, value.photoLarge)
+          + (value.photoSmall != null ? ProtoAdapter.BYTES.encodedSizeWithTag(3, value.photoSmall) : 0)
+          + (value.photoLarge != null ? ProtoAdapter.BYTES.encodedSizeWithTag(4, value.photoLarge) : 0)
           + ProtoAdapter.INT32.encodedSizeWithTag(5, value.isStarred)
           + value.unknownFields().size();
     }
@@ -206,8 +200,8 @@ public final class Person extends Message<Person, Person.Builder> {
     public void encode(ProtoWriter writer, Person value) throws IOException {
       ProtoAdapter.INT32.encodeWithTag(writer, 1, value.id);
       ProtoAdapter.STRING.encodeWithTag(writer, 2, value.name);
-      ProtoAdapter.STRING.encodeWithTag(writer, 3, value.photoSmall);
-      ProtoAdapter.STRING.encodeWithTag(writer, 4, value.photoLarge);
+      if (value.photoSmall != null) ProtoAdapter.BYTES.encodeWithTag(writer, 3, value.photoSmall);
+      if (value.photoLarge != null) ProtoAdapter.BYTES.encodeWithTag(writer, 4, value.photoLarge);
       ProtoAdapter.INT32.encodeWithTag(writer, 5, value.isStarred);
       writer.writeBytes(value.unknownFields());
     }
@@ -220,8 +214,8 @@ public final class Person extends Message<Person, Person.Builder> {
         switch (tag) {
           case 1: builder.id(ProtoAdapter.INT32.decode(reader)); break;
           case 2: builder.name(ProtoAdapter.STRING.decode(reader)); break;
-          case 3: builder.photoSmall(ProtoAdapter.STRING.decode(reader)); break;
-          case 4: builder.photoLarge(ProtoAdapter.STRING.decode(reader)); break;
+          case 3: builder.photoSmall(ProtoAdapter.BYTES.decode(reader)); break;
+          case 4: builder.photoLarge(ProtoAdapter.BYTES.decode(reader)); break;
           case 5: builder.isStarred(ProtoAdapter.INT32.decode(reader)); break;
           default: {
             FieldEncoding fieldEncoding = reader.peekFieldEncoding();
