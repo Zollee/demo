@@ -2,13 +2,13 @@ syntax = "proto2";
 
 package com.howard.designcontact;
 
-option java_package = "com.example.demo.proto";
+option java_package = "com.howard.designcontact.proto";
 
 message Person {
   required int32 id = 1;
   required string name = 2;
-  optional bytes photoSmall = 3;
-  optional bytes photoLarge = 4;
+  optional string photoSmall = 3;
+  optional string photoLarge = 4;
   required int32 isStarred = 5;
 }
 

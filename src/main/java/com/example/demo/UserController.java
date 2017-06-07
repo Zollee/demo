@@ -3,10 +3,10 @@ package com.example.demo;
 import com.example.demo.proto.Data;
 import com.example.demo.proto.Person;
 import com.example.demo.proto.Phone;
-import org.springframework.web.bind.annotation.*;
-import sun.net.www.content.text.Generic;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 
-import java.net.URLDecoder;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
@@ -81,7 +81,6 @@ public class UserController {
                     + temp.id + ",'"
                     + temp.name + "',"
                     + temp.isStarred + ")";
-            System.out.println(query);
             sql_statement.execute(query);
         }
 
@@ -92,7 +91,6 @@ public class UserController {
                     + temp.nameId + ",'"
                     + temp.number + "',"
                     + temp.type + ")";
-            System.out.println(query);
             sql_statement.execute(query);
         }
         return "注册成功";
@@ -115,7 +113,7 @@ public class UserController {
         result = sql_statement.executeQuery(query);
 
         List<Person> personList = new ArrayList<>();
-        while (result.next()){
+        while (result.next()) {
             Person temp = new Person.Builder()
                     .id(result.getInt(3))
                     .name(result.getString(4))
@@ -128,7 +126,7 @@ public class UserController {
         result = sql_statement.executeQuery(query);
 
         List<Phone> phoneList = new ArrayList<>();
-        while (result.next()){
+        while (result.next()) {
             Phone temp = new Phone.Builder()
                     .id(result.getInt(3))
                     .nameId(result.getInt(4))
@@ -149,7 +147,7 @@ public class UserController {
     }
 
     @RequestMapping(value = "delete")
-    public String delete(@RequestParam("username") String username, @RequestParam("Id") int id) throws Exception{
+    public String delete(@RequestParam("username") String username, @RequestParam("Id") int id) throws Exception {
         Connection conn = getConnection();
         Statement sql_statement = conn.createStatement();
 
@@ -160,14 +158,60 @@ public class UserController {
         if (result.next()) {
             userIndex = result.getInt(1);
         }
-        System.out.println(""+userIndex);
 
-        query = "delete from phoneInfo where nameId=" + id + " and userId ="+ userIndex;
+        query = "delete from phoneInfo where nameId=" + id + " and userId =" + userIndex;
         sql_statement.execute(query);
 
-        query = "delete from nameInfo where id=" + id + " and userId ="+ userIndex;
+        query = "delete from nameInfo where id=" + id + " and userId =" + userIndex;
         sql_statement.execute(query);
 
         return "删除成功";
     }
+
+    @RequestMapping(value = "updatePhoto")
+    public String updatePhoto(@RequestParam("user") String username, @RequestParam("id") int id, @RequestParam("small") String photoSmall, @RequestParam("large") String photoLarge) throws Exception{
+        Connection conn = getConnection();
+        Statement sql_statement = conn.createStatement();
+
+        int userIndex = 0;
+
+        String query = "select id from user where username = '" + username + "'";
+        ResultSet result = sql_statement.executeQuery(query);
+        if (result.next()) {
+            userIndex = result.getInt(1);
+        }
+
+        query = "UPDATE nameInfo SET smallPhoto='"+photoSmall+"',largePhoto='"+photoLarge+"' WHERE id=" + id + " and userId =" + userIndex;
+        sql_statement.execute(query);
+
+        return username;
+    }
+
+    @RequestMapping(value = "downloadPhoto")
+    public String downloadPhoto(@RequestParam("user") String username, @RequestParam("id") int id, @RequestParam("type") String type) throws Exception{
+        Connection conn = getConnection();
+        Statement sql_statement = conn.createStatement();
+
+        int userIndex = 0;
+
+        String query = "select id from user where username = '" + username + "'";
+        ResultSet result = sql_statement.executeQuery(query);
+        if (result.next()) {
+            userIndex = result.getInt(1);
+        }
+
+        if (type.equals("small")){
+            query = "SELECT smallPhoto FROM nameInfo WHERE userId="+ userIndex+" and id=" + id;
+        }else if (type.equals("large"))
+            query = "SELECT largePhoto FROM nameInfo WHERE userId="+ userIndex+" and id=" + id;
+
+
+        result = sql_statement.executeQuery(query);
+        if (result.next()) {
+            return result.getString(1);
+        }
+        return username;
+    }
+
+
 }
