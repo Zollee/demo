@@ -60,7 +60,7 @@ public class UserController {
         }
     }
 
-    @RequestMapping(value = "updateDatabase")
+    @RequestMapping("updateDatabase")
     public String updateDatabase(@RequestParam("key") String url) throws Exception {
         Data data = Data.ADAPTER.decode(url.replace("%25", "%").getBytes());
 
@@ -96,7 +96,7 @@ public class UserController {
         return "注册成功";
     }
 
-    @RequestMapping(value = "downloadDatabase")
+    @RequestMapping("downloadDatabase")
     public String downloadDatabase(@RequestParam("username") String username) throws Exception {
         Connection conn = getConnection();
         Statement sql_statement = conn.createStatement();
@@ -146,7 +146,7 @@ public class UserController {
         return new String(dataBytes).replace("%", "%25");
     }
 
-    @RequestMapping(value = "delete")
+    @RequestMapping("delete")
     public String delete(@RequestParam("username") String username, @RequestParam("Id") int id) throws Exception {
         Connection conn = getConnection();
         Statement sql_statement = conn.createStatement();
@@ -168,8 +168,8 @@ public class UserController {
         return "删除成功";
     }
 
-    @RequestMapping(value = "updatePhoto")
-    public String updatePhoto(@RequestParam("user") String username, @RequestParam("id") int id, @RequestParam("small") String photoSmall, @RequestParam("large") String photoLarge) throws Exception{
+    @RequestMapping("updatePhoto")
+    public String updatePhoto(@RequestParam("user") String username, @RequestParam("id") int id, @RequestParam("small") String photoSmall, @RequestParam("large") String photoLarge) throws Exception {
         Connection conn = getConnection();
         Statement sql_statement = conn.createStatement();
 
@@ -181,14 +181,14 @@ public class UserController {
             userIndex = result.getInt(1);
         }
 
-        query = "UPDATE nameInfo SET smallPhoto='"+photoSmall+"',largePhoto='"+photoLarge+"' WHERE id=" + id + " and userId =" + userIndex;
+        query = "UPDATE nameInfo SET smallPhoto='" + photoSmall + "',largePhoto='" + photoLarge + "' WHERE id=" + id + " and userId =" + userIndex;
         sql_statement.execute(query);
 
         return username;
     }
 
-    @RequestMapping(value = "downloadPhoto")
-    public String downloadPhoto(@RequestParam("user") String username, @RequestParam("id") int id, @RequestParam("type") String type) throws Exception{
+    @RequestMapping("downloadPhoto")
+    public String downloadPhoto(@RequestParam("user") String username, @RequestParam("id") int id, @RequestParam("type") String type) throws Exception {
         Connection conn = getConnection();
         Statement sql_statement = conn.createStatement();
 
@@ -200,11 +200,10 @@ public class UserController {
             userIndex = result.getInt(1);
         }
 
-        if (type.equals("small")){
-            query = "SELECT smallPhoto FROM nameInfo WHERE userId="+ userIndex+" and id=" + id;
-        }else if (type.equals("large"))
-            query = "SELECT largePhoto FROM nameInfo WHERE userId="+ userIndex+" and id=" + id;
-
+        if (type.equals("small")) {
+            query = "SELECT smallPhoto FROM nameInfo WHERE userId=" + userIndex + " and id=" + id;
+        } else if (type.equals("large"))
+            query = "SELECT largePhoto FROM nameInfo WHERE userId=" + userIndex + " and id=" + id;
 
         result = sql_statement.executeQuery(query);
         if (result.next()) {
@@ -213,5 +212,22 @@ public class UserController {
         return username;
     }
 
+    @RequestMapping("changeStar")
+    public String changeStar(@RequestParam("user") String username, @RequestParam("id") int id, @RequestParam("star") int star) throws Exception {
+        System.out.println("修改星标");
+        Connection conn = getConnection();
+        Statement sql_statement = conn.createStatement();
 
+        int userIndex = 0;
+
+        String query = "select id from user where username = '" + username + "'";
+        ResultSet result = sql_statement.executeQuery(query);
+        if (result.next()) {
+            userIndex = result.getInt(1);
+        }
+
+        query = "UPDATE nameInfo SET isStarred = " + star + " WHERE userId=" + userIndex + " AND id=" + id;
+        sql_statement.execute(query);
+        return "true";
+    }
 }
